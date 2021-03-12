@@ -2,3 +2,5 @@
 composer.lock
 phpunit.xml
 /Tests/cache
+.idea
+.phpunit.result.cache
