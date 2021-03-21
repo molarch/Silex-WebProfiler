@@ -21,7 +21,6 @@ use Silex\ServiceControllerResolver;
 use Symfony\Bridge\Twig\DataCollector\TwigDataCollector;
 use Symfony\Bridge\Twig\Extension\CodeExtension;
 use Symfony\Bridge\Twig\Extension\ProfilerExtension;
-use Symfony\Bundle\DebugBundle\DebugBundle;
 use Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector;
 use Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController;
 use Symfony\Bundle\WebProfilerBundle\Controller\ExceptionPanelController;
@@ -108,7 +107,7 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
 
         $app['data_collectors'] = function ($app) {
             return array(
-                'config' => function ($app) { return new ConfigDataCollector(); },
+                // 'config' => function ($app) { return new ConfigDataCollector(); }, // FixMe: ConfigDataCollector uses `isSymfonyLts()` which requires a Kernel we dont have
                 'request' => function ($app) { return new RequestDataCollector(); },
                 'exception' => function ($app) { return new ExceptionDataCollector(); },
                 'events' => function ($app) { return new EventDataCollector($app['dispatcher']); },
