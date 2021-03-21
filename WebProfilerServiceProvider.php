@@ -13,19 +13,20 @@ namespace Silex\Provider;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Silex\Api\ControllerProviderInterface;
 use Silex\Api\BootableProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Api\EventListenerProviderInterface;
 use Silex\Application;
 use Silex\ServiceControllerResolver;
 use Symfony\Bridge\Twig\DataCollector\TwigDataCollector;
 use Symfony\Bridge\Twig\Extension\CodeExtension;
 use Symfony\Bridge\Twig\Extension\ProfilerExtension;
+use Symfony\Bundle\DebugBundle\DebugBundle;
 use Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector;
 use Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController;
 use Symfony\Bundle\WebProfilerBundle\Controller\ExceptionPanelController;
-use Symfony\Bundle\WebProfilerBundle\Controller\RouterController;
 use Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController;
+use Symfony\Bundle\WebProfilerBundle\Controller\RouterController;
 use Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener;
 use Symfony\Bundle\WebProfilerBundle\Twig\WebProfilerExtension;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -33,26 +34,25 @@ use Symfony\Component\Form\Extension\DataCollector\FormDataCollector;
 use Symfony\Component\Form\Extension\DataCollector\FormDataExtractor;
 use Symfony\Component\Form\Extension\DataCollector\Proxy\ResolvedTypeFactoryDataCollectorProxy;
 use Symfony\Component\Form\Extension\DataCollector\Type\DataCollectorTypeExtension;
-use Symfony\Component\HttpKernel\Controller\ErrorController;
-use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\HttpKernel\Profiler\Profiler;
-use Symfony\Component\HttpKernel\EventListener\DumpListener;
-use Symfony\Component\HttpKernel\EventListener\ProfilerListener;
-use Symfony\Component\HttpKernel\Profiler\FileProfilerStorage;
 use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
 use Symfony\Component\HttpKernel\DataCollector\ConfigDataCollector;
 use Symfony\Component\HttpKernel\DataCollector\DumpDataCollector;
+use Symfony\Component\HttpKernel\DataCollector\EventDataCollector;
 use Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector;
+use Symfony\Component\HttpKernel\DataCollector\LoggerDataCollector;
+use Symfony\Component\HttpKernel\DataCollector\MemoryDataCollector;
 use Symfony\Component\HttpKernel\DataCollector\RequestDataCollector;
 use Symfony\Component\HttpKernel\DataCollector\RouterDataCollector;
-use Symfony\Component\HttpKernel\DataCollector\MemoryDataCollector;
 use Symfony\Component\HttpKernel\DataCollector\TimeDataCollector;
-use Symfony\Component\HttpKernel\DataCollector\LoggerDataCollector;
-use Symfony\Component\HttpKernel\DataCollector\EventDataCollector;
 use Symfony\Component\HttpKernel\Debug\FileLinkFormatter;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
-use Symfony\Component\Security\Http\Logout\LogoutUrlGenerator;
+use Symfony\Component\HttpKernel\EventListener\DumpListener;
+use Symfony\Component\HttpKernel\EventListener\ProfilerListener;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\HttpKernel\Profiler\FileProfilerStorage;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
+use Symfony\Component\Security\Http\Logout\LogoutUrlGenerator;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\Translation\DataCollector\TranslationDataCollector;
 use Symfony\Component\Translation\DataCollectorTranslator;
@@ -91,15 +91,15 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
                 array('translation', '@WebProfiler/Collector/translation.html.twig'),
             );
 
-            if (class_exists('Symfony\Bridge\Twig\Extension\ProfilerExtension')) {
+            if (class_exists(ProfilerExtension::class)) {
                 $templates[] = array('twig', '@WebProfiler/Collector/twig.html.twig');
             }
 
-            if (isset($app['var_dumper.cli_dumper']) && $app['profiler.templates_path.debug']) {
+            if (isset($app['var_dumper.cli_dumper'])) {
                 $templates[] = array('dump', '@Debug/Profiler/dump.html.twig');
             }
 
-            if (class_exists('Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector')) {
+            if (class_exists(AjaxDataCollector::class)) {
                 $templates[] = array('ajax', '@WebProfiler/Collector/ajax.html.twig');
             }
 
@@ -140,7 +140,7 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
             });
         }
 
-        if (class_exists('Symfony\Bridge\Twig\Extension\ProfilerExtension')) {
+        if (class_exists(ProfilerExtension::class)) {
             $app->extend('data_collectors', function ($collectors, $app) {
                 $collectors['twig'] = function ($app) {
                     return new TwigDataCollector($app['twig.profiler.profile'], $app['twig']);
@@ -160,19 +160,17 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
             };
 
             $app->extend('data_collectors', function ($collectors, $app) {
-                if ($app['profiler.templates_path.debug']) {
-                    $collectors['dump'] = function ($app) {
-                        $dumper = null === $app['var_dumper.dump_destination'] ? null : $app['var_dumper.cli_dumper'];
+                $collectors['dump'] = function ($app) {
+                    $dumper = null === $app['var_dumper.dump_destination'] ? null : $app['var_dumper.cli_dumper'];
 
-                        return $app['var_dumper.data_collector'] = new DumpDataCollector($app['stopwatch'], null, $app['charset'], $app['request_stack'], $dumper);
-                    };
-                }
+                    return $app['var_dumper.data_collector'] = new DumpDataCollector($app['stopwatch'], null, $app['charset'], $app['request_stack'], $dumper);
+                };
 
                 return $collectors;
             });
         }
 
-        if (class_exists('Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector')) {
+        if (class_exists(AjaxDataCollector::class)) {
             $app->extend('data_collectors', function ($collectors, $app) {
                 $collectors['ajax'] = function ($app) {
                     return new AjaxDataCollector();
@@ -182,7 +180,7 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
             });
         }
 
-        if (isset($app['security.token_storage']) && class_exists('Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector')) {
+        if (isset($app['security.token_storage']) && class_exists(SecurityDataCollector::class)) {
             $app->extend('data_collectors', function ($collectors, $app) {
                 $collectors['security'] = function ($app) {
                     $roleHierarchy = new RoleHierarchy($app['security.role_hierarchy']);
@@ -201,18 +199,10 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
             });
 
             $app->extend('twig.loader.filesystem', function ($loader, $app) {
-                if ($app['profiler.templates_path.security']) {
-                    $loader->addPath($app['profiler.templates_path.security'], 'Security');
-                }
+//                    $loader->addPath($app['profiler.templates_path.security'], 'Security');
 
                 return $loader;
             });
-
-            $app['profiler.templates_path.security'] = function () {
-                $r = new \ReflectionClass('Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector');
-
-                return dirname(dirname($r->getFileName())).'/Resources/views';
-            };
 
             $app['twig'] = $app->extend('twig', function ($twig, $app) {
                 $twig->addFilter(new TwigFilter('yaml_encode', function (array $var) {
@@ -227,7 +217,7 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
             });
         }
 
-        if (isset($app['translator']) && class_exists('Symfony\Component\Translation\DataCollector\TranslationDataCollector')) {
+        if (isset($app['translator']) && class_exists(TranslationDataCollector::class)) {
             $app->extend('data_collectors', function ($collectors, $app) {
                 $collectors['translation'] = function ($app) {
                     return new TranslationDataCollector($app['translator']);
@@ -250,7 +240,7 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
         };
 
         $app['web_profiler.controller.exception'] = function ($app) {
-            return new ExceptionController($app['profiler'], $app['twig'], $app['debug']);
+            return new ExceptionPanelController($app['twig'], $app['profiler']);
         };
 
         $app['web_profiler.toolbar.listener'] = function ($app) {
@@ -295,17 +285,17 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
         $app['code.file_link_format'] = null;
 
         $app->extend('twig', function ($twig, $app) use ($baseDir) {
-            if (class_exists('Symfony\Component\HttpKernel\Debug\FileLinkFormatter')) {
+            if (class_exists(FileLinkFormatter::class)) {
                 $app['code.file_link_format'] = new FileLinkFormatter($app['code.file_link_format'], $app['request_stack'], $baseDir, '/_profiler/open?file=%f&line=%l#line%l');
             }
 
             $twig->addExtension(new CodeExtension($app['code.file_link_format'], '', $app['charset']));
 
-            if (class_exists('Symfony\Bundle\WebProfilerBundle\Twig\WebProfilerExtension')) {
+            if (class_exists(WebProfilerExtension::class)) {
                 $twig->addExtension(new WebProfilerExtension());
             }
 
-            if (class_exists('Symfony\Bridge\Twig\Extension\ProfilerExtension')) {
+            if (class_exists(ProfilerExtension::class)) {
                 $twig->addExtension(new ProfilerExtension($app['twig.profiler.profile'], $app['stopwatch']));
             }
 
@@ -314,38 +304,17 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
 
         $app->extend('twig.loader.filesystem', function ($loader, $app) {
             $loader->addPath($app['profiler.templates_path'], 'WebProfiler');
-            $loader->addPath($app['profiler.templates_path.twig'], 'Twig');
-            if ($app['profiler.templates_path.debug']) {
-                $loader->addPath($app['profiler.templates_path.debug'], 'Debug');
-            }
+            $loader->addPath($this->getBaseDir() . '/templates/bundles/TwigBundle', 'Twig');
+            $loader->addPath($this->getBaseDir() . '/templates/bundles/SecurityBundle', 'Security');
+            $loader->addPath($this->getBaseDir() . '/templates/bundles/DebugBundle', 'Debug');
 
             return $loader;
         });
 
         $app['profiler.templates_path'] = function () {
-            $r = new \ReflectionClass('Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener');
+            $r = new \ReflectionClass(WebDebugToolbarListener::class);
 
-            return dirname(dirname($r->getFileName())).'/Resources/views';
-        };
-
-        $app['profiler.templates_path.twig'] = function () {
-            $r = new \ReflectionClass('Symfony\Bundle\TwigBundle\Controller\ExceptionController');
-
-            return dirname(dirname($r->getFileName())).'/Resources/views';
-        };
-
-        $app['profiler.templates_path.debug'] = function () {
-            // This code cannot be simplified as all classes in the bundle depend
-            // on packages that are not required by Silex
-            foreach (spl_autoload_functions() as $autoloader) {
-                if (!is_array($autoloader) || !method_exists($autoloader[0], 'findFile')) {
-                    continue;
-                }
-
-                if ($file = $autoloader[0]->findFile('Symfony\Bundle\DebugBundle\DebugBundle')) {
-                    return dirname($file).'/Resources/views';
-                }
-            }
+            return dirname($r->getFileName(), 2) . '/Resources/views';
         };
     }
 

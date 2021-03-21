@@ -10,11 +10,11 @@
         }
     ],
     "require": {
-        "silexandfriends/silex": "^2.0",
-        "symfony/web-profiler-bundle": "^4.0",
-        "symfony/twig-bundle": "^4.0",
-        "symfony/twig-bridge": "^4.0",
-        "symfony/stopwatch": "^4.0"
+        "silexandfriends/silex": "^3.0",
+        "symfony/web-profiler-bundle": "^5.2",
+        "symfony/twig-bundle": "^5.2",
+        "symfony/twig-bridge": "^5.2",
+        "symfony/stopwatch": "^5.2"
     },
     "conflict": {
         "symfony/web-profiler-bundle": "3.1.0"
@@ -23,13 +23,12 @@
         "silex/web-profiler": "self.version"
     },
     "require-dev": {
-        "symfony/browser-kit": "^4.0",
-        "symfony/css-selector": "^4.0",
-        "symfony/debug-bundle": "^4.0",
-        "symfony/phpunit-bridge": "^4.0",
-        "symfony/security": "^4.0",
-        "symfony/security-bundle": "^4.0",
-        "symfony/translation": "^4.0"
+        "symfony/browser-kit": "^5.2",
+        "symfony/css-selector": "^5.2",
+        "symfony/debug-bundle": "^5.2",
+        "symfony/phpunit-bridge": "^5.2",
+        "symfony/security-bundle": "^5.2",
+        "symfony/translation": "^5.2"
     },
     "autoload": {
         "psr-4": { "Silex\\Provider\\": "" }
