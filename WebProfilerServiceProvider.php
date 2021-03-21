@@ -303,10 +303,11 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
         });
 
         $app->extend('twig.loader.filesystem', function ($loader, $app) {
+            $dir = __DIR__;
             $loader->addPath($app['profiler.templates_path'], 'WebProfiler');
-            $loader->addPath($this->getBaseDir() . '/templates/bundles/TwigBundle', 'Twig');
-            $loader->addPath($this->getBaseDir() . '/templates/bundles/SecurityBundle', 'Security');
-            $loader->addPath($this->getBaseDir() . '/templates/bundles/DebugBundle', 'Debug');
+            $loader->addPath($dir . '/templates/bundles/TwigBundle', 'Twig');
+            $loader->addPath($dir . '/templates/bundles/SecurityBundle', 'Security');
+            $loader->addPath($dir . '/templates/bundles/DebugBundle', 'Debug');
 
             return $loader;
         });
