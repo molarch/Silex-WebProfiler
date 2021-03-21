@@ -23,6 +23,7 @@ use Symfony\Bridge\Twig\Extension\CodeExtension;
 use Symfony\Bridge\Twig\Extension\ProfilerExtension;
 use Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector;
 use Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController;
+use Symfony\Bundle\WebProfilerBundle\Controller\ExceptionPanelController;
 use Symfony\Bundle\WebProfilerBundle\Controller\RouterController;
 use Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController;
 use Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener;
@@ -32,6 +33,7 @@ use Symfony\Component\Form\Extension\DataCollector\FormDataCollector;
 use Symfony\Component\Form\Extension\DataCollector\FormDataExtractor;
 use Symfony\Component\Form\Extension\DataCollector\Proxy\ResolvedTypeFactoryDataCollectorProxy;
 use Symfony\Component\Form\Extension\DataCollector\Type\DataCollectorTypeExtension;
+use Symfony\Component\HttpKernel\Controller\ErrorController;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\HttpKernel\EventListener\DumpListener;
@@ -106,7 +108,7 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
 
         $app['data_collectors'] = function ($app) {
             return array(
-                'config' => function ($app) { return new ConfigDataCollector('Silex', Application::VERSION); },
+                'config' => function ($app) { return new ConfigDataCollector(); },
                 'request' => function ($app) { return new RequestDataCollector(); },
                 'exception' => function ($app) { return new ExceptionDataCollector(); },
                 'events' => function ($app) { return new EventDataCollector($app['dispatcher']); },
