@@ -1,5 +1,5 @@
 {
-    "name": "silexandfriends/web-profiler",
+    "name": "molarch/web-profiler",
     "description": "A WebProfiler for Silex",
     "homepage": "http://silex.sensiolabs.org/",
     "license": "MIT",
@@ -7,10 +7,14 @@
         {
             "name": "Fabien Potencier",
             "email": "fabien@symfony.com"
+        },
+        {
+            "name": "John Layt",
+            "email": "jlayt@mola.org.uk"
         }
     ],
     "require": {
-        "silexandfriends/silex": "^3.0",
+        "molarch/silex": "dev-master",
         "symfony/web-profiler-bundle": "^5.2",
         "symfony/twig-bundle": "^5.2",
         "symfony/twig-bridge": "^5.2",
@@ -33,9 +37,15 @@
     "autoload": {
         "psr-4": { "Silex\\Provider\\": "" }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/molarch/silex"
+        }
+    ],
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-master": "2.2.x-dev"
         }
     }
 }
