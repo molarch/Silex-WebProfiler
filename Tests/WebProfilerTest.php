@@ -11,10 +11,15 @@
 
 namespace Silex\Provider\Tests;
 
+use Silex\Provider\HttpFragmentServiceProvider;
+use Silex\Provider\ServiceControllerServiceProvider;
+use Silex\Provider\SecurityServiceProvider;
+use Silex\Provider\TwigServiceProvider;
+use Silex\Provider\WebProfilerServiceProvider;
 use Silex\Application;
 use Silex\WebTestCase;
 use Silex\Provider;
-use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
+use Symfony\Component\PasswordHasher\Hasher\PlaintextPasswordHasher;
 
 class WebProfilerTest extends WebTestCase
 {
@@ -23,9 +28,9 @@ class WebProfilerTest extends WebTestCase
         $app = new Application();
 
         // Service providers
-        $app->register(new Provider\HttpFragmentServiceProvider());
-        $app->register(new Provider\ServiceControllerServiceProvider());
-        $app->register(new Provider\SecurityServiceProvider(), array(
+        $app->register(new HttpFragmentServiceProvider());
+        $app->register(new ServiceControllerServiceProvider());
+        $app->register(new SecurityServiceProvider(), array(
             'security.firewalls' => array(
                 'secured' => array(
                     'pattern' => '^/secured',
@@ -40,18 +45,18 @@ class WebProfilerTest extends WebTestCase
                     'anonymous' => true,
                 ),
             ),
-            'security.encoder.digest' => new PlaintextPasswordEncoder(),
+            'security.hasher.default' => new PlaintextPasswordHasher(),
             'security.role_hierarchy' => array(
                 'ROLE_ADMIN' => array('ROLE_USER', 'ROLE_ALLOWED_TO_SWITCH'),
             ),
         ));
-        $app->register(new Provider\TwigServiceProvider(), array(
+        $app->register(new TwigServiceProvider(), array(
             'twig.templates' => array(
                 'index.twig' => '<body>OK</body>',
             ),
         ));
 
-        $app->register(new Provider\WebProfilerServiceProvider(), array(
+        $app->register(new WebProfilerServiceProvider(), array(
             'profiler.cache_dir' => __DIR__.'/cache/profiler',
         ));
 
